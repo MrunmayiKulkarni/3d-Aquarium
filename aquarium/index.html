@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Signup Form</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 600" preserveAspectRatio="xMidYMid slice">
+        <!-- Define the mask for the background image -->
+        <defs>
+            <mask id="curve-mask">
+                <path d="M 0 0 L 600 0 Q 700 300 600 600 L 0 600 Z" fill="white"/>
+            </mask>
+        </defs>
+
+        <!-- Background image with mask -->
+        <image 
+            href="aq4.jpeg" 
+            width="1000" 
+            height="600" 
+            mask="url(#curve-mask)"
+            preserveAspectRatio="xMidYMid slice"
+        />
+        
+        <!-- Curved form section with updated blue color -->
+        <path d="M 600 0 L 1000 0 L 1000 600 L 600 600 Q 700 300 600 0" fill="#2874BB"/>
+        
+        <!-- Form Elements -->
+        <g transform="translate(700, 150)">
+            <!-- Title -->
+            <text x="0" y="0" fill="white" font-size="18" font-family="Arial">Sign Up</text>
+            <text x="0" y="25" fill="white" font-size="10" font-family="Arial">Create your account</text>
+            
+            <!-- Name Input -->
+            <rect id="nameInputBox" x="0" y="50" width="200" height="40" fill="#F5F5F5" opacity="0.95" rx="8"/>
+            <text x="20" y="75" fill="#333" font-size="11" font-family="Arial">Name</text>
+            <foreignObject x="0" y="50" width="200" height="40">
+                <input id="nameInput" type="text" style="width: 100%; height: 100%; padding: 10px; border-radius: 8px; border: none;" placeholder="Enter your name">
+            </foreignObject>
+            
+            <!-- Email Input -->
+            <rect id="emailInputBox" x="0" y="110" width="200" height="40" fill="#F5F5F5" opacity="0.95" rx="8"/>
+            <text x="20" y="135" fill="#333" font-size="11" font-family="Arial">Email</text>
+            <foreignObject x="0" y="110" width="200" height="40">
+                <input id="emailInput" type="email" style="width: 100%; height: 100%; padding: 10px; border-radius: 8px; border: none;" placeholder="Enter your email">
+            </foreignObject>
+
+            <!-- Password Input -->
+            <rect id="passwordInputBox" x="0" y="170" width="200" height="40" fill="#F5F5F5" opacity="0.95" rx="8"/>
+            <text x="20" y="195" fill="#333" font-size="11" font-family="Arial">Password</text>
+            <foreignObject x="0" y="170" width="200" height="40">
+                <input id="passwordInput" type="password" style="width: 100%; height: 100%; padding: 10px; border-radius: 8px; border: none;" placeholder="Enter your password">
+            </foreignObject>
+            
+            <!-- Terms Checkbox -->
+            <rect id="termsCheckboxBox" x="0" y="230" width="20" height="20" fill="#F5F5F5" opacity="0.95" rx="4"/>
+            <text x="30" y="245" fill="white" font-size="10" font-family="Arial">I agree to the Terms and Conditions</text>
+            <foreignObject x="0" y="230" width="20" height="20">
+                <input id="termsCheckbox" type="checkbox" />
+            </foreignObject>
+            
+            <!-- Create Account Button -->
+            <rect id="createAccountBtn" x="0" y="270" width="200" height="40" fill="#000000" rx="8"/>
+            <text x="100" y="295" fill="white" font-size="12" text-anchor="middle" font-family="Arial">Create Account</text>
+            
+            <!-- Sign In Link -->
+            <text x="0" y="340" fill="white" font-size="10" font-family="Arial">Already have an account?</text>
+            <text x="123" y="340" fill="#000000" font-size="10" font-family="Arial">Sign in</text>
+        </g>
+    </svg>
+
+    <script src="script.js"></script>
+</body>
+</html>
