@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Signup Form</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+        
+        svg {
+            width: 100%;
+            height: 100vh;
+        }
+        
+        input {
+            font-family: Arial, sans-serif;
+            box-sizing: border-box;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+        
+        input:focus {
+            background-color: #fff !important;
+            box-shadow: 0 0 5px rgba(40, 116, 187, 0.5);
+        }
+        
+        .button-hover {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .button-hover:hover {
+            opacity: 0.8;
+            transform: translateY(-2px);
+        }
+        
+        .error-message {
+            color: #ff4444;
+            font-size: 12px;
+            font-family: Arial;
+            margin-top: 5px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .shake {
+            animation: shake 0.4s ease-in-out;
+        }
+    </style>
+</head>
+<body>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 600" preserveAspectRatio="xMidYMid slice">
+        <defs>
+            <mask id="curve-mask">
+                <path d="M 0 0 L 600 0 Q 700 300 600 600 L 0 600 Z" fill="white"/>
+            </mask>
+        </defs>
+        
+        <image 
+            href="aq4.jpeg" 
+            width="1000" 
+            height="600" 
+            mask="url(#curve-mask)"
+            preserveAspectRatio="xMidYMid slice"
+        />
+        
+        <path d="M 600 0 L 1000 0 L 1000 600 L 600 600 Q 700 300 600 0" fill="#2874BB"/>
+        
+        <g transform="translate(700, 150)">
+            <!-- Title with animation -->
+            <text x="0" y="0" fill="white" font-size="18" font-family="Arial" class="fade-in">Sign Up</text>
+            <text x="0" y="25" fill="white" font-size="10" font-family="Arial" class="fade-in">Create your account</text>
+            
+            <!-- Name Input -->
+            <rect id="nameInputBox" x="0" y="50" width="200" height="40" fill="#F5F5F5" opacity="0.95" rx="8"/>
+            <foreignObject x="0" y="50" width="200" height="40">
+                <div>
+                    <input id="nameInput" type="text" 
+                        style="width: 100%; height: 100%; padding: 10px; border-radius: 8px; border: none; background: transparent;"
+                        placeholder="Enter your name">
+                    <div class="error-message" id="nameError"></div>
+                </div>
+            </foreignObject>
+            
+            <!-- Email Input -->
+            <rect id="emailInputBox" x="0" y="110" width="200" height="40" fill="#F5F5F5" opacity="0.95" rx="8"/>
+            <foreignObject x="0" y="110" width="200" height="40">
+                <div>
+                    <input id="emailInput" type="email" 
+                        style="width: 100%; height: 100%; padding: 10px; border-radius: 8px; border: none; background: transparent;"
+                        placeholder="Enter your email">
+                    <div class="error-message" id="emailError"></div>
+                </div>
+            </foreignObject>
+            
+            <!-- Password Input -->
+            <rect id="passwordInputBox" x="0" y="170" width="200" height="40" fill="#F5F5F5" opacity="0.95" rx="8"/>
+            <foreignObject x="0" y="170" width="200" height="40">
+                <div>
+                    <input id="passwordInput" type="password" 
+                        style="width: 100%; height: 100%; padding: 10px; border-radius: 8px; border: none; background: transparent;"
+                        placeholder="Enter your password">
+                    <div class="error-message" id="passwordError"></div>
+                </div>
+            </foreignObject>
+            
+            <!-- Terms Checkbox -->
+            <foreignObject x="0" y="230" width="250" height="30">
+                <div style="display: flex; align-items: center;">
+                    <input id="termsCheckbox" type="checkbox" 
+                        style="width: 20px; height: 20px; margin-right: 10px; cursor: pointer;">
+                    <label for="termsCheckbox" style="color: white; font-family: Arial; font-size: 10px;">
+                        I agree to the Terms and Conditions
+                    </label>
+                </div>
+            </foreignObject>
+            
+            <!-- Create Account Button -->
+            <g id="createAccountBtn" class="button-hover">
+                <rect x="0" y="270" width="200" height="40" fill="#000000" rx="8"/>
+                <text x="100" y="295" fill="white" font-size="12" text-anchor="middle" font-family="Arial">Create Account</text>
+            </g>
+            
+            <!-- Sign In Link -->
+            <text x="0" y="340" fill="white" font-size="10" font-family="Arial">Already have an account?</text>
+            <a href="login.html">
+                <text x="123" y="340" fill="#000000" font-size="10" font-family="Arial" 
+                    class="button-hover" style="text-decoration: underline; cursor: pointer">Sign in</text>
+            </a>
+        </g>
+    </svg>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Input elements
+            const nameInput = document.getElementById('nameInput');
+            const emailInput = document.getElementById('emailInput');
+            const passwordInput = document.getElementById('passwordInput');
+            const termsCheckbox = document.getElementById('termsCheckbox');
+            const createAccountBtn = document.getElementById('createAccountBtn');
+
+            // Error message elements
+            const nameError = document.getElementById('nameError');
+            const emailError = document.getElementById('emailError');
+            const passwordError = document.getElementById('passwordError');
+
+            // Validation functions
+            function validateName(name) {
+                return name.length >= 2;
+            }
+
+            function validateEmail(email) {
+                return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+            }
+
+            function validatePassword(password) {
+                return password.length >= 6;
+            }
+
+            // Input validation with visual feedback
+            function showError(input, errorElement, message) {
+                input.style.borderColor = '#ff4444';
+                errorElement.textContent = message;
+                errorElement.style.opacity = '1';
+                input.classList.add('shake');
+                setTimeout(() => input.classList.remove('shake'), 500);
+            }
+
+            function clearError(input, errorElement) {
+                input.style.borderColor = '';
+                errorElement.style.opacity = '0';
+            }
+
+            // Input event listeners
+            nameInput.addEventListener('input', () => {
+                if (validateName(nameInput.value)) {
+                    clearError(nameInput, nameError);
+                }
+            });
+
+            emailInput.addEventListener('input', () => {
+                if (validateEmail(emailInput.value)) {
+                    clearError(emailInput, emailError);
+                }
+            });
+
+            passwordInput.addEventListener('input', () => {
+                if (validatePassword(passwordInput.value)) {
+                    clearError(passwordInput, passwordError);
+                }
+            });
+
+            // Form submission
+            createAccountBtn.addEventListener('click', function(e) {
+                let isValid = true;
+
+                // Validate name
+                if (!validateName(nameInput.value)) {
+                    showError(nameInput, nameError, 'Name must be at least 2 characters');
+                    isValid = false;
+                }
+
+                // Validate email
+                if (!validateEmail(emailInput.value)) {
+                    showError(emailInput, emailError, 'Please enter a valid email');
+                    isValid = false;
+                }
+
+                // Validate password
+                if (!validatePassword(passwordInput.value)) {
+                    showError(passwordInput, passwordError, 'Password must be at least 6 characters');
+                    isValid = false;
+                }
+
+                // Validate terms
+                if (!termsCheckbox.checked) {
+                    termsCheckbox.classList.add('shake');
+                    setTimeout(() => termsCheckbox.classList.remove('shake'), 500);
+                    isValid = false;
+                }
+
+                if (isValid) {
+                    // Here you would typically send the data to your server
+                    console.log('Form submitted:', {
+                        name: nameInput.value,
+                        email: emailInput.value,
+                        password: passwordInput.value
+                    });
+                    
+                    // Simulate success feedback
+                    createAccountBtn.querySelector('rect').setAttribute('fill', '#28a745');
+                    setTimeout(() => {
+                        createAccountBtn.querySelector('rect').setAttribute('fill', '#000000');
+                    }, 1000);
+                }
+            });
+
+            // Button hover effect
+            createAccountBtn.addEventListener('mouseover', function() {
+                this.querySelector('rect').setAttribute('fill', '#333333');
+            });
+
+            createAccountBtn.addEventListener('mouseout', function() {
+                this.querySelector('rect').setAttribute('fill', '#000000');
+            });
+        });
+    </script>
+</body>
+</html>
