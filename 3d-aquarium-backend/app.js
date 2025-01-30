@@ -109,7 +109,7 @@ app.post('/api/upload', upload.array('files', 10), async (req, res) => {
 
 // Get Customizations Route
 app.get('/api/customizations', async (req, res) => {
-  const { userId } = req.query; // Assume userId is passed as a query parameter
+  const { userId } = req.query; 
   const customizations = await Aquarium.find({ userId });
   res.status(200).json(customizations);
 });
