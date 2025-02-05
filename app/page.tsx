@@ -65,9 +65,6 @@ export default function Home() {
                 >
                   Start Building
                 </Link>
-                <button className="btn bg-white/10 hover:bg-white/20 text-white border-none backdrop-blur-sm">
-                  Explore Features
-                </button>
               </div>
             </div>
             <div className="w-full">
