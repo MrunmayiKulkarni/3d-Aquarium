@@ -4,6 +4,10 @@ import { useEffect, useState } from "react";
 
 const SignupPage = () => {
   const [loading, setLoading] = useState(false);
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [message, setMessage] = useState("");
 
   useEffect(() => {
     const backgroundElements = document.getElementById("backgroundElements");
@@ -24,10 +28,32 @@ const SignupPage = () => {
     }
   }, []);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setTimeout(() => setLoading(false), 2000);
+    setMessage("");
+
+    try {
+      const response = await fetch("http://localhost:3001/api/signup", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ username, email, password }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setMessage("🎉 Signup successful! You can now log in.");
+      } else {
+        setMessage(`❌ ${data.message}`);
+      }
+    } catch (error) {
+      setMessage("❌ An error occurred. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -45,18 +71,24 @@ const SignupPage = () => {
           <input 
             type="text" 
             placeholder="Full Name" 
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
             required 
             className="w-full p-4 bg-white/20 border border-white/30 rounded-lg text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-blue-400"
           />
           <input 
             type="email" 
             placeholder="Email Address" 
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             required 
             className="w-full p-4 bg-white/20 border border-white/30 rounded-lg text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-blue-400"
           />
           <input 
             type="password" 
             placeholder="Create Password" 
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
             required 
             className="w-full p-4 bg-white/20 border border-white/30 rounded-lg text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-blue-400"
           />
@@ -72,6 +104,12 @@ const SignupPage = () => {
             {loading ? "🐠 Signing Up..." : "Create My Account"}
           </button>
         </form>
+
+        {message && (
+          <p className={`text-center mt-4 ${message.startsWith("🎉") ? "text-green-400" : "text-red-400"}`}>
+            {message}
+          </p>
+        )}
 
         <div className="text-center mt-5 text-white/80">
           <p>Already have an account? <a href="/login" className="underline hover:text-blue-300">Sign in</a></p>

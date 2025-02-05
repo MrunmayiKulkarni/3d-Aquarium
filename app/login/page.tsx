@@ -1,9 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation"; 
 
 const LoginPage = () => {
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [formData, setFormData] = useState({ username: "", password: "" });
+  const router = useRouter(); // Used to navigate after login
 
   useEffect(() => {
     const backgroundElements = document.getElementById("backgroundElements");
@@ -36,10 +40,37 @@ const LoginPage = () => {
     }
   }, []);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // Handle form input changes
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  // Handle form submission
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setTimeout(() => setLoading(false), 2000);
+    setError("");
+
+    try {
+      const response = await fetch("http://localhost:3001/api/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include", // Ensures cookies (refresh token) are stored
+        body: JSON.stringify(formData),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) throw new Error(data.message || "Login failed");
+
+      localStorage.setItem("accessToken", data.accessToken); // Store token for authenticated requests
+      router.push("/builder"); // Redirect to dashboard or home page
+
+    } catch (error: any) {
+      setError(error.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -55,17 +86,24 @@ const LoginPage = () => {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <input 
-            type="email" 
-            placeholder="Email" 
+            type="text" 
+            name="username"
+            placeholder="Username" 
+            value={formData.username} 
+            onChange={handleChange} 
             required 
             className="w-full p-3 bg-white/20 border border-white/30 rounded text-white focus:outline-none"
           />
           <input 
             type="password" 
+            name="password"
             placeholder="Password" 
+            value={formData.password} 
+            onChange={handleChange} 
             required 
             className="w-full p-3 bg-white/20 border border-white/30 rounded text-white focus:outline-none"
           />
+          {error && <p className="text-red-400 text-center">{error}</p>}
           <button 
             type="submit" 
             className="w-full p-3 bg-blue-600 hover:bg-blue-700 text-white rounded transition"
