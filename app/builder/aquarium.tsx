@@ -10,6 +10,44 @@ export default function Aquarium() {
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
   const [isInitialized, setIsInitialized] = useState(false);
+  
+  // 🌟 Coral Position State
+  const [coralPosition, setCoralPosition] = useState<[number, number, number]>([0, -2.4, 0]);
+
+  // 🌟 Define movement boundaries
+  const minX = -5, maxX = 5;   // Left (-X) to Right (+X)
+  const minZ = -5, maxZ = 5;   // Inside (-Z) to Outside (+Z)
+  const step = 0.2;            // Movement step size
+
+  // 🌟 Handle Key Press for Coral Movement
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      setCoralPosition((prev) => {
+        let [x, y, z] = prev;
+
+        switch (event.key) {
+          case "ArrowLeft":  // Move left (-X)
+            x = Math.max(x - step, minX);
+            break;
+          case "ArrowRight": // Move right (+X)
+            x = Math.min(x + step, maxX);
+            break;
+          case "ArrowUp":    // Move inside (-Z)
+            z = Math.max(z - step, minZ);
+            break;
+          case "ArrowDown":  // Move outside (+Z)
+            z = Math.min(z + step, maxZ);
+            break;
+          default:
+            return prev; // No change for other keys
+        }
+        return [x, y, z];
+      });
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -35,6 +73,8 @@ export default function Aquarium() {
     // 🕹️ OrbitControls
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
+    controls.minDistance = 5; // Minimum zoom-in distance
+    controls.maxDistance = 20; // Maximum zoom-out distance
 
     // 🎨 Background Gradient
     const canvas = document.createElement("canvas");
@@ -90,12 +130,12 @@ export default function Aquarium() {
   }, []);
 
   return (
-    <div ref={containerRef} style={{ width: "100%", height: "100vh" }}>
+    <div ref={containerRef} style={{ width: "100%", height: "100vh", position: "relative" }}>
       {isInitialized && cameraRef.current && rendererRef.current && (
         <Fish scene={scene.current} camera={cameraRef.current} renderer={rendererRef.current} />
       )}
-      <Coral scene={scene.current} />
-
+      
+      <Coral scene={scene.current} position={coralPosition} />
     </div>
   );
 }
