@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 
+
 export default function Fish({
   scene,
   camera,
@@ -20,96 +21,132 @@ export default function Fish({
   });
 
   useEffect(() => {
-    if (fishRef.current) return;
-
     const loader = new GLTFLoader();
     loader.load("/models/fishe.glb", (gltf) => {
       const fish = gltf.scene;
       fish.scale.set(1, 1, 1);
-      fish.position.set(0, 0, 0);
-      fish.rotation.y = Math.random() * Math.PI * 2;
-
-      // ✅ Remove any existing fish before adding new one
-      const existingFish = scene.getObjectByName("fish");
-      if (existingFish) {
-        scene.remove(existingFish);
-      }
-
+      fish.position.set(0, 1, 0);
       fish.name = "fish";
       scene.add(fish);
       fishRef.current = fish;
 
-      // 🏊‍♂️ Fish Swimming Animation (Slower)
-      const fishSwim = () => {
-        if (fishRef.current) {
-          fishRef.current.position.x += 0.005;
-          if (fishRef.current.position.x > 6) fishRef.current.position.x = -6;
-        }
-        requestAnimationFrame(fishSwim);
-      };
-      fishSwim();
-    });
+      const SPEED = 0.002;
+      const BOUNDARY = 5;
+      let elapsedTime = 0;
+      let rotationInterval = 2;
 
-    // 🖱️ Click Interaction to Rotate 360°
+      
+
+      const animate = () => {
+        if (!fishRef.current) return;
+
+        elapsedTime += 0.016;
+
+        const randomFactor = Math.sin(elapsedTime) * 0.02;
+
+        fish.position.z += (SPEED + randomFactor) * Math.cos(fish.rotation.y);
+        fish.position.x += (SPEED + randomFactor) * Math.sin(fish.rotation.y);
+
+        if (elapsedTime >= rotationInterval) {
+          fish.rotation.y += (Math.random() * Math.PI / 2) - (Math.PI / 4);
+          rotationInterval = 1 + Math.random() * 2;
+          elapsedTime = 0;
+        }
+
+        if (Math.abs(fish.position.x) > BOUNDARY) {
+          fish.position.x = Math.sign(fish.position.x) * BOUNDARY;
+          fish.rotation.y *= -1;
+        }
+        if (Math.abs(fish.position.z) > BOUNDARY) {
+          fish.position.z = Math.sign(fish.position.z) * BOUNDARY;
+          fish.rotation.y = Math.PI - fish.rotation.y;
+        }
+
+        requestAnimationFrame(animate);
+      };
+
+      animate();
+    });
     const raycaster = new THREE.Raycaster();
     const mouse = new THREE.Vector2();
 
     const onClick = (event: MouseEvent) => {
-      if (!fishRef.current || isRotatingRef.current) return;
-
+      if (isRotatingRef.current) return; // Prevent multiple simultaneous rotations
+    
       const rect = renderer.domElement.getBoundingClientRect();
       mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
       mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
-
+    
       raycaster.setFromCamera(mouse, camera);
-      const intersects = raycaster.intersectObject(fishRef.current, true);
-
+      const intersects = raycaster.intersectObjects(scene.children, true); // Check all objects
+    
       if (intersects.length > 0) {
+        const clickedObject = intersects[0].object; // Get the clicked object
+    
+        // 🔥 Check if the clicked object belongs to a fish
+        let clickedFish = clickedObject;
+        while (clickedFish && clickedFish.parent) {
+          if (clickedFish.name === "fish") break; // Found the fish
+          clickedFish = clickedFish.parent; // Move up in hierarchy
+        }
+    
+        if (!clickedFish || clickedFish.name !== "fish") return; // Not a fish, ignore
+    
         isRotatingRef.current = true;
         let rotationAmount = 0;
-
+    
         const rotateFish = () => {
-          if (!fishRef.current) return;
           const rotationSpeed = Math.PI / 50;
-          fishRef.current.rotation.y += rotationSpeed;
+          clickedFish.rotation.y += rotationSpeed;
           rotationAmount += rotationSpeed;
-
+    
           if (rotationAmount < Math.PI * 2) {
             requestAnimationFrame(rotateFish);
           } else {
-            fishRef.current.rotation.y = Math.round(fishRef.current.rotation.y);
+            clickedFish.rotation.y = Math.round(clickedFish.rotation.y);
             isRotatingRef.current = false;
           }
         };
-
+    
         rotateFish();
       }
     };
+    
+    
 
-    // 🖱️ Double Click Interaction to Show Info
     const onDoubleClick = (event: MouseEvent) => {
-      if (!fishRef.current) return;
-
       const rect = renderer.domElement.getBoundingClientRect();
       mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
       mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
-
+    
       raycaster.setFromCamera(mouse, camera);
-      const intersects = raycaster.intersectObject(fishRef.current, true);
-
+      const intersects = raycaster.intersectObjects(scene.children, true); // Check all objects
+    
       if (intersects.length > 0) {
+        const clickedObject = intersects[0].object; // Get the clicked object
+    
+        // 🔥 Ensure we are interacting with a fish
+        let clickedFish = clickedObject;
+        while (clickedFish && clickedFish.parent) {
+          if (clickedFish.name === "fish") break; // Found the fish
+          clickedFish = clickedFish.parent; // Move up in hierarchy
+        }
+    
+        if (!clickedFish || clickedFish.name !== "fish") return; // Not a fish, ignore
+    
+        // 🐠 Show fish info at the clicked position
         setFishInfo({
-          x: event.clientX, // Get screen position
+          x: event.clientX,
           y: event.clientY,
           visible: true,
         });
-
+    
         setTimeout(() => {
           setFishInfo((prev) => ({ ...prev, visible: false })); // Hide after 3 seconds
         }, 3000);
       }
     };
-
+    
     renderer.domElement.addEventListener("click", onClick);
     renderer.domElement.addEventListener("dblclick", onDoubleClick);
 
@@ -118,6 +155,7 @@ export default function Fish({
       renderer.domElement.removeEventListener("dblclick", onDoubleClick);
     };
   }, [scene, camera, renderer]);
+
 
   return (
     <>
